@@ -46,7 +46,7 @@ module Rouge
       option :lang, 'the shell language to lex (default: shell)'
       option :output, 'the output language (default: plaintext?token=Generic.Output)'
       option :prompt, 'comma-separated list of strings that indicate the end of a prompt. (default: $,>,;)'
-      option :rprompt, 'comma-separated list of strings that indicate the end of a root prompt. (default: #,%)'
+      option :rprompt, 'comma-separated list of strings that indicate the end of a root prompt. (default: #)'
       option :comments, 'enable hash-comments at the start of a line - otherwise interpreted as a prompt. (default: false, implied by ?prompt not containing `#`)'
       option :error, 'comma-separated list of strings that indicate the start of an error message'
 
@@ -87,9 +87,9 @@ module Rouge
         @root_end_chars ||= if @rprompt.any?
           @rprompt.reject { |c| c.empty? }
         elsif allow_comments?
-          %w(% )
+          %w()
         else
-          %w(% #)
+          %w(#)
         end
       end
 

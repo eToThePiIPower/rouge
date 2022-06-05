@@ -14,12 +14,39 @@ describe Rouge::Lexers::ConsoleLexer do
       ['Text', 'foo']
   end
 
+  it 'parses a root prompt' do
+    assert_tokens_equal '# foo',
+      ['Name.Entity', '#'],
+      ['Text.Whitespace', ' '],
+      ['Text', 'foo']
+  end
+
   it 'parses a custom prompt' do
     subject_with_options = klass.new({ prompt: '%' })
     assert_tokens_equal '% foo', subject_with_options,
       ['Generic.Prompt', '%'],
       ['Text.Whitespace', ' '],
       ['Text', 'foo']
+  end
+
+  it 'parses a custom root prompt' do
+    subject_with_options = klass.new({ rprompt: '%' })
+    assert_tokens_equal '% foo', subject_with_options,
+      ['Name.Entity', '%'],
+      ['Text.Whitespace', ' '],
+      ['Text', 'foo']
+  end
+
+  it 'parses with both custom prompt and root prompt' do
+    subject_with_options = klass.new({ prompt: '!', rprompt: '%' })
+    assert_tokens_equal '! foo', subject_with_options,
+      ['Generic.Prompt', '!'],
+      ['Text.Whitespace', ' '],
+      ['Text', 'foo']
+    assert_tokens_equal '% bar', subject_with_options,
+      ['Name.Entity', '%'],
+      ['Text.Whitespace', ' '],
+      ['Text', 'bar']
   end
 
   it 'does not crash if argument ends with backslash' do
@@ -51,7 +78,7 @@ describe Rouge::Lexers::ConsoleLexer do
 
   it 'ignores single-line comments' do
     assert_tokens_equal '# this is not a comment',
-      ['Generic.Prompt', '#'],
+      ['Name.Entity', '#'],
       ['Text.Whitespace', ' '],
       ['Text', 'this is not a comment']
   end
