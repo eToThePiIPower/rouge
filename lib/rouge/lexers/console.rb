@@ -9,19 +9,20 @@ module Rouge
     # line before passing the remainder of the line to the language lexer for
     # the shell (by default, the {Shell} lexer).
     #
-    # The {ConsoleLexer} class accepts five options:
+    # The {ConsoleLexer} class accepts six options:
     # 1. **lang**: the shell language to lex (default: `shell`);
     # 2. **output**: the output language (default: `plaintext?token=Generic.Output`);
     # 3. **prompt**: comma-separated list of strings that indicate the end of a
-    #    prompt (default: `$,#,>,;`);
-    # 4. **comments**: whether to enable comments.
-    # 5. **error**: comma-separated list of strings that indicate the start of an
+    # 4. **root**: comma-separated list of strings that indicate the end of a
+    #    root prompt (default: ``);
+    # 5. **comments**: whether to enable comments.
+    # 6. **error**: comma-separated list of strings that indicate the start of an
     #    error message
     #
     # The comments option, if enabled, will lex lines that begin with a `#` as a
-    # comment. Please note that this option will only work if the prompt is
-    # either not manually specified or, if manually specified, does not include
-    # the `#` character.
+    # comment. Please note that this option will only work if the prompt and
+    # root options are either not manually specified or, if manually specified,
+    # do not include the `#` character.
     #
     # Most Markdown lexers that recognise GitHub-Flavored Markdown syntax, will
     # pass the language string to Rouge as written in the original document.
