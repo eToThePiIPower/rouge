@@ -46,14 +46,14 @@ module Rouge
       option :lang, 'the shell language to lex (default: shell)'
       option :output, 'the output language (default: plaintext?token=Generic.Output)'
       option :prompt, 'comma-separated list of strings that indicate the end of a prompt. (default: $,>,;)'
-      option :rprompt, 'comma-separated list of strings that indicate the end of a root prompt. (default: #)'
+      option :root, 'comma-separated list of strings that indicate the end of a root prompt. (default: #)'
       option :comments, 'enable hash-comments at the start of a line - otherwise interpreted as a prompt. (default: false, implied by ?prompt not containing `#`)'
       option :error, 'comma-separated list of strings that indicate the start of an error message'
 
       def initialize(*)
         super
         @prompt = list_option(:prompt) { nil }
-        @rprompt = list_option(:rprompt) { nil }
+        @root = list_option(:root) { nil }
         @lang = lexer_option(:lang) { 'shell' }
         @output = lexer_option(:output) { PlainText.new(token: Generic::Output) }
         @comments = bool_option(:comments) { :guess }
@@ -65,7 +65,7 @@ module Rouge
       def allow_comments?
         case @comments
         when :guess
-          @rprompt && !@rprompt.empty? && !end_chars.include?('#') && !root_end_chars.include?('#')
+          @root && !@root.empty? && !@prompt.include?('#') && !@root.include?('#')
         else
           @comments
         end
@@ -78,18 +78,20 @@ module Rouge
       def end_chars
         @end_chars ||= if @prompt.any?
           @prompt.reject { |c| c.empty? }
-        else
+        elsif allow_comments?
           %w($ > ;)
+        else
+          %w($ > ; #)
         end
       end
 
       def root_end_chars
-        @root_end_chars ||= if @rprompt.any?
-          @rprompt.reject { |c| c.empty? }
+        @root_end_chars ||= if @root.any?
+          @root.reject { |c| c.empty? }
         elsif allow_comments?
           %w()
         else
-          %w(#)
+          %w()
         end
       end
 
@@ -141,7 +143,7 @@ module Rouge
           lang_lexer.reset!
 
           yield Comment, input[0]
-        elsif rprompt_regex =~ input[0]
+        elsif root_end_chars.any? && rprompt_regex =~ input[0]
           puts "console: matched root prompt #{input[0].inspect}" if @debug
           output_lexer.reset!
 
@@ -154,7 +156,7 @@ module Rouge
           yield Text::Whitespace, $& unless $&.empty?
 
           lang_lexer.continue_lex($', &output)
-        elsif prompt_regex =~ input[0]
+        elsif end_chars.any? && prompt_regex =~ input[0]
           puts "console: matched prompt #{input[0].inspect}" if @debug
           output_lexer.reset!
 

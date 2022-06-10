@@ -12,11 +12,8 @@ describe Rouge::Lexers::ConsoleLexer do
       ['Generic.Prompt', '$'],
       ['Text.Whitespace', ' '],
       ['Text', 'foo']
-  end
-
-  it 'parses a root prompt' do
     assert_tokens_equal '# foo',
-      ['Name.Entity', '#'],
+      ['Generic.Prompt', '#'],
       ['Text.Whitespace', ' '],
       ['Text', 'foo']
   end
@@ -30,21 +27,21 @@ describe Rouge::Lexers::ConsoleLexer do
   end
 
   it 'parses a custom root prompt' do
-    subject_with_options = klass.new({ rprompt: '%' })
-    assert_tokens_equal '% foo', subject_with_options,
-      ['Name.Entity', '%'],
+    subject_with_options = klass.new({ root: '#' })
+    assert_tokens_equal '# foo', subject_with_options,
+      ['Name.Entity', '#'],
       ['Text.Whitespace', ' '],
       ['Text', 'foo']
   end
 
   it 'parses with both custom prompt and root prompt' do
-    subject_with_options = klass.new({ prompt: '!', rprompt: '%' })
-    assert_tokens_equal '! foo', subject_with_options,
-      ['Generic.Prompt', '!'],
+    subject_with_options = klass.new({ prompt: '%', root: '#' })
+    assert_tokens_equal '% foo', subject_with_options,
+      ['Generic.Prompt', '%'],
       ['Text.Whitespace', ' '],
       ['Text', 'foo']
-    assert_tokens_equal '% bar', subject_with_options,
-      ['Name.Entity', '%'],
+    assert_tokens_equal '# bar', subject_with_options,
+      ['Name.Entity', '#'],
       ['Text.Whitespace', ' '],
       ['Text', 'bar']
   end
@@ -74,11 +71,15 @@ describe Rouge::Lexers::ConsoleLexer do
     subject_with_options = klass.new({ comments: true })
     assert_tokens_equal '# this is a comment', subject_with_options,
       ['Comment', '# this is a comment']
+    assert_tokens_equal '$ this', subject_with_options,
+      ['Generic.Prompt', '$'],
+      ['Text.Whitespace', ' '],
+      ['Text', 'this']
   end
 
   it 'ignores single-line comments' do
     assert_tokens_equal '# this is not a comment',
-      ['Name.Entity', '#'],
+      ['Generic.Prompt', '#'],
       ['Text.Whitespace', ' '],
       ['Text', 'this is not a comment']
   end
